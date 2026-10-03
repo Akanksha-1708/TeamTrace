@@ -140,3 +140,51 @@ h1, h2, h3 {
 div[data-testid="stMetric"] {
     background: transparent;
 }
+
+/* Upload page */
+.upload-file-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    margin: 18px 0;
+    border: 1px solid #303345;
+    border-radius: 12px;
+    background: #151822;
+}
+
+.upload-file-card .meeting-info {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.upload-file-card .meeting-info b {
+    font-size: 13px;
+    display: block;
+}
+
+.upload-file-card .meeting-info small {
+    font-size: 11px;
+    color: #999eaf;
+}
+
+.upload-file-card .status-pill {
+    flex-shrink: 0;
+}
+
+/* Upload form container */
+div[data-testid="stFileUploader"] {
+    border-radius: 12px;
+}
+
+div[data-testid="stFileUploader"] section {
+    background: #13151e;
+    border: 1px dashed #464966;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+div[data-testid="stFileUploader"] section:hover {
+    border-color: #9184ff;
+}
