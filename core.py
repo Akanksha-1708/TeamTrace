@@ -87,3 +87,63 @@ def analyze_meeting(transcript: str) -> dict:
 
     response.raise_for_status()
     return json.loads(response.json()["response"])
+
+
+import sqlite3
+from datetime import datetime
+
+DB_PATH = Path("teamtrace.db")
+
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def initialize_db():
+    with get_db_connection() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS meetings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                recording_name TEXT,
+                transcript TEXT NOT NULL,
+                analysis TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        """)
+
+
+def save_meeting(title, recording_name, transcript, analysis):
+    with get_db_connection() as conn:
+        cursor = conn.execute("""
+            INSERT INTO meetings (
+                title, recording_name, transcript,
+                analysis, created_at
+            )
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            title,
+            recording_name,
+            transcript,
+            json.dumps(analysis),
+            datetime.now().isoformat(timespec="seconds")
+        ))
+        return cursor.lastrowid
+
+
+def get_meetings():
+    with get_db_connection() as conn:
+        return conn.execute("""
+            SELECT id, title, recording_name, created_at
+            FROM meetings
+            ORDER BY id DESC
+        """).fetchall()
+
+
+def get_meeting(meeting_id):
+    with get_db_connection() as conn:
+        return conn.execute("""
+            SELECT * FROM meetings WHERE id = ?
+        """, (meeting_id,)).fetchone()
