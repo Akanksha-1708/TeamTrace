@@ -1,3 +1,5 @@
+import requests
+import json
 from pathlib import Path
 from faster_whisper import WhisperModel
 
