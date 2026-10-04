@@ -190,6 +190,7 @@ elif page == "Upload Recording":
                             file.write(uploaded_file.getbuffer())
 
                         st.session_state["last_uploaded_file"] = str(destination)
+                        st.session_state.pop("transcription_result", None)
                         st.success("Recording uploaded successfully.")
                         st.caption(f"Saved as: {safe_name}")
 
@@ -199,11 +200,42 @@ elif page == "Upload Recording":
         else:
             st.info("Your recording will appear here once selected.")
 
-    st.markdown("")
+    # Transcription action for the saved recording
+    saved_path=st.session_state.get("last_uploaded_file")
+    if saved_path and Path(saved_path).exists():
+        st.markdown("### Transcription")
+        if st.button("Generate transcript", type="primary",use_container_width=True):
+            from core import transcribe_recording
+            try:
+                with st.spinner("Loading Whisper and transcribing your recording..."):
+                    result=transcribe_recording(saved_path)
+                
+                st.session_state["transcription_result"]=result
+                st.success("Transcription completed.")
+
+            except Exception as error:
+                st.error(f"Transcription failed: {error}")
+
+    result=st.session_state.get("transcription_result")
+
+    if result:
+        st.markdown("### Transcript")
+        st.caption(
+            f"Language: {result['language']} · "
+            f"Duration: {result['duration']:.1f} seconds"
+        )
+        from core import format_timestamp
+        with st.container(border=True):
+            for segment in result["segments"]:
+                timestamp=format_timestamp(segment["start"])
+                st.markdown(f"**{timestamp}**")
+                st.write(segment["text"])
+                st.divider()
+
     st.caption(
-        "Your files are stored locally in the uploads folder. "
-        "AI processing will be added in the next milestone."
-    )
+        "Recordings are stored locally. Transcrition runs locally"
+        "using Faster-Whisper."
+    )  
 
 # Other pages
 elif page == "My Meetings":
