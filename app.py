@@ -232,6 +232,69 @@ elif page == "Upload Recording":
                 st.write(segment["text"])
                 st.divider()
 
+    
+    # AI meeting analysis
+    if result:
+        st.markdown("### Meeting Intelligence")
+
+        if st.button(
+            "Generate AI Insights",
+            type="primary",
+            use_container_width=True
+        ):
+            from core import analyze_meeting
+
+            transcript_text = "\n".join(
+                segment["text"] for segment in result["segments"]
+            )
+
+            try:
+                with st.spinner("Qwen is analyzing your meeting..."):
+                    analysis = analyze_meeting(transcript_text)
+
+                st.session_state["meeting_analysis"] = analysis
+                st.success("AI analysis completed!")
+
+            except Exception as error:
+                st.error(f"AI analysis failed: {error}")
+
+        analysis = st.session_state.get("meeting_analysis")
+
+        # AI meeting analysis
+        if analysis:
+            st.markdown("#### Summary")
+            st.write(analysis.get("summary", "No summary available."))
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.markdown("#### Key Topics")
+                for topic in analysis.get("topics", []):
+                    st.markdown(f"- {topic}")
+
+                st.markdown("#### Decisions")
+                for decision in analysis.get("decisions", []):
+                    st.markdown(f"- {decision}")
+
+            with col2:
+                st.markdown("#### Action Items")
+                for task in analysis.get("tasks", []):
+                    if isinstance(task, dict):
+                        st.markdown(
+                            f"**{task.get('task', 'Task')}**"
+                        )
+                        st.caption(
+                            f"Assignee: {task.get('assignee') or 'Unassigned'}"
+                            f" · Deadline: {task.get('deadline') or 'Not specified'}"
+                        )
+                    else:
+                        st.markdown(f"- {task}")
+
+                st.markdown("#### Open Questions")
+                for question in analysis.get("questions", []):
+                    st.markdown(f"- {question}")
+
+
     st.caption(
         "Recordings are stored locally. Transcrition runs locally"
         "using Faster-Whisper."
