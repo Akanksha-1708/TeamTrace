@@ -50,3 +50,40 @@ def format_timestamp(seconds: float) -> str:
     minutes = int(seconds // 60)
     remaining_seconds = int(seconds % 60)
     return f"{minutes:02d}:{remaining_seconds:02d}"
+
+def analyze_meeting(transcript: str) -> dict:
+    """Analyze a meeting transcript using Qwen via Ollama."""
+
+    prompt = f"""
+    Analyze the following meeting transcript.
+
+    Extract:
+    - A concise summary
+    - Main topics
+    - Tasks with assignees and deadlines
+    - Decisions made
+    - Unresolved questions
+
+    Return valid JSON with these exact keys:
+    summary, topics, tasks, decisions, questions.
+
+    Do not invent missing information.
+    If an assignee or deadline is not mentioned, use null.
+
+    Transcript:
+    {transcript}
+    """
+
+    response = requests.post(
+        "http://127.0.0.1:11434/api/generate",
+        json={
+            "model": "qwen2.5:3b",
+            "prompt": prompt,
+            "format": "json",
+            "stream": False
+        },
+        timeout=300
+    )
+
+    response.raise_for_status()
+    return json.loads(response.json()["response"])
