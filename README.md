@@ -26,10 +26,7 @@ The goal is to help individuals and teams turn conversations into organized know
 - [Project Structure](#-project-structure)
 - [Current Implementation](#-current-implementation)
 - [Installation and Setup](#-installation-and-setup)
-- [Environment Configuration](#-environment-configuration)
-- [Known Limitations](#-known-limitations)
 - [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
